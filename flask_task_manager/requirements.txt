@@ -1,0 +1,6 @@
+Flask
+SQLAlchemy
+Flask-Login
+Flask-WTF
+Werkzeug
+Flask-SQLAlchemy

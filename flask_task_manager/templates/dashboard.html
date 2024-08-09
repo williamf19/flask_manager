@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h2>Tareas</h2>
+        <ul class="list-group">
+            {% for task in current_user.tasks %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ task.title }} {% if task.category %} ({{ task.category.name }}) {% endif %}</span>
+                <div>
+                    <form action="{{ url_for('complete_task', task_id=task.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-success" {% if task.is_completed %}disabled{% endif %}>✓</button>
+                    </form>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editTaskModal{{ task.id }}">Editar</button>
+                    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </li>
+
+            <!-- Modal para editar tarea -->
+            <div class="modal fade" id="editTaskModal{{ task.id }}" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editTaskModalLabel">Editar Tarea</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="{{ url_for('edit_task', task_id=task.id) }}" method="POST">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="title" name="title" value="{{ task.title }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="category_id" class="form-label">Categoría</label>
+                                    <select class="form-select" id="category_id" name="category_id">
+                                        <option value="">Sin Categoría</option>
+                                        {% for category in current_user.categories %}
+                                        <option value="{{ category.id }}" {% if task.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </ul>
+
+        <!-- Formulario para crear nueva tarea -->
+        <form action="{{ url_for('create_task') }}" method="POST" class="mt-3">
+            <div class="input-group">
+                <input type="text" name="title" class="form-control" placeholder="Nueva tarea..." required>
+                <select name="category_id" class="form-select">
+                    <option value="">Sin Categoría</option>
+                    {% for category in current_user.categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary" type="submit">Agregar</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h2>Categorías</h2>
+        <ul class="list-group">
+            {% for category in current_user.categories %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('view_category_tasks', category_id=category.id) }}">{{ category.name }}</a>
+                <div>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editCategoryModal{{ category.id }}">Editar</button>
+                    <form action="{{ url_for('delete_category', category_id=category.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </li>
+
+            <!-- Modal para editar categoría -->
+            <div class="modal fade" id="editCategoryModal{{ category.id }}" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editCategoryModalLabel">Editar Categoría</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="{{ url_for('edit_category', category_id=category.id) }}" method="POST">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ category.name }}" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </ul>
+
+        <!-- Formulario para crear nueva categoría -->
+        <form action="{{ url_for('create_category') }}" method="POST" class="mt-3">
+            <div class="input-group">
+                <input type="text" name="name" class="form-control" placeholder="Nueva categoría..." required>
+                <button class="btn btn-primary" type="submit">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
